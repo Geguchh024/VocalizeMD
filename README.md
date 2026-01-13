@@ -2,7 +2,7 @@
 
 ![Vocalize MD Logo](assets/Vocalize_MD_Logo.png)
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/USERNAME/vocalize-md)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/Geguchh024/VocalizeMD)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.103.0+-007ACC.svg)](https://code.visualstudio.com/)
 
@@ -35,7 +35,7 @@ The extension intelligently processes Markdown syntax using Gemini AI to create 
 
 ### Manual Installation
 
-1. Download the latest `.vsix` file from the [releases page](https://github.com/USERNAME/vocalize-md/releases)
+1. Download the latest `.vsix` file from the [releases page](https://github.com/Geguchh024/VocalizeMD)
 2. Open VS Code
 3. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
 4. Click the "..." menu at the top of the Extensions panel

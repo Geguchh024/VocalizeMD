@@ -3,16 +3,16 @@
   "displayName": "Vocalize MD",
   "description": "Text-to-Speech for Markdown files",
   "version": "0.1.0",
-  "publisher": "YOUR_PUBLISHER_ID",
+  "publisher": "Geguchh024",
   "icon": "assets/Vocalize_MD_Logo.png",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/USERNAME/vocalize-md"
+    "url": "https://github.com/Geguchh024/VocalizeMD"
   },
-  "homepage": "https://github.com/USERNAME/vocalize-md#readme",
+  "homepage": "https://github.com/Geguchh024/VocalizeMD#readme",
   "bugs": {
-    "url": "https://github.com/USERNAME/vocalize-md/issues"
+    "url": "https://github.com/Geguchh024/VocalizeMD/issues"
   },
   "keywords": [
     "markdown",
@@ -30,7 +30,7 @@
   "engines": {
     "vscode": "^1.103.0"
   },
-  "categories": ["Other"],
+  "categories": ["Other", "Accessibility"],
   "activationEvents": ["onLanguage:markdown"],
   "main": "./out/extension.js",
   "contributes": {

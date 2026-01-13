@@ -9,3 +9,7 @@ tsconfig.json
 CONTRIBUTING.md
 .github/**
 !assets/**
+
+.kiro/**
+*.md
+!README.md

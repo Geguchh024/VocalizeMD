@@ -19,7 +19,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 1. **Fork and Clone the Repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/vocalize-md.git
+   git clone https://github.com/Geguchh024/VocalizeMD.git
    cd vocalize-md
    ```
 
