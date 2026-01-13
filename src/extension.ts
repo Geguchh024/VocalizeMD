@@ -59,6 +59,10 @@ interface Config {
     deepgramApiKey: string;
     /** OpenRouter API key for accessing Gemini AI */
     openrouterApiKey: string;
+    /** AssemblyAI API key for speech-to-text transcription with timestamps */
+    assemblyaiApiKey: string;
+    /** Whether to use AssemblyAI for accurate timestamps */
+    useAssemblyAI: boolean;
     /** Voice model identifier for Deepgram TTS */
     voice: string;
 }
@@ -72,6 +76,8 @@ function getConfig(): Config {
     return {
         deepgramApiKey: cfg.get('deepgramApiKey') || '',
         openrouterApiKey: cfg.get('openrouterApiKey') || '',
+        assemblyaiApiKey: cfg.get('assemblyaiApiKey') || '',
+        useAssemblyAI: cfg.get('useAssemblyAI') || false,
         voice: cfg.get('voice') || 'aura-asteria-en'
     };
 }
@@ -126,12 +132,33 @@ export function activate(context: vscode.ExtensionContext) {
             panel.webview.postMessage({ type: 'status', message: 'Generating speech with Deepgram...' });
             const result = await generateSpeech(cleanText, config.deepgramApiKey, config.voice);
 
-            // Step 3: Send to panel for playback with word timings
+            // Step 3: Optionally transcribe audio with AssemblyAI for accurate word timestamps
+            let words: WordTiming[] = result.words;
+            let useAccurateTimestamps = false;
+            
+            if (config.useAssemblyAI && config.assemblyaiApiKey) {
+                panel.webview.postMessage({ type: 'status', message: 'Getting word timestamps from AssemblyAI...' });
+                try {
+                    words = await transcribeWithAssemblyAI(result.audio, config.assemblyaiApiKey);
+                    useAccurateTimestamps = true;
+                } catch (err) {
+                    // Fall back to Deepgram timings if AssemblyAI fails
+                    console.warn('AssemblyAI transcription failed, using Deepgram timings:', err);
+                }
+            }
+
+            // Step 4: Send to panel for playback with word timings
             panel.webview.postMessage({
                 type: 'ready',
                 text: cleanText,
                 audio: result.audio,
-                words: result.words
+                words: words,
+                useAccurateTimestamps: useAccurateTimestamps,
+                apiStatus: {
+                    deepgram: !!config.deepgramApiKey,
+                    openrouter: !!config.openrouterApiKey,
+                    assemblyai: config.useAssemblyAI && !!config.assemblyaiApiKey
+                }
             });
 
         } catch (err) {
@@ -410,6 +437,177 @@ function generateChunk(text: string, apiKey: string, voice: string): Promise<{ a
         
         req.on('error', e => reject(e.message));
         req.write(data);
+        req.end();
+    });
+}
+
+/**
+ * Transcribes audio using AssemblyAI to get accurate word-level timestamps.
+ * @param {string} audioBase64 - Base64-encoded audio data
+ * @param {string} apiKey - AssemblyAI API key
+ * @returns {Promise<WordTiming[]>} Array of word timings with start/end in seconds
+ */
+async function transcribeWithAssemblyAI(audioBase64: string, apiKey: string): Promise<WordTiming[]> {
+    // Step 1: Upload audio to AssemblyAI
+    const uploadUrl = await uploadToAssemblyAI(audioBase64, apiKey);
+    
+    // Step 2: Create transcription request
+    const transcriptId = await createTranscription(uploadUrl, apiKey);
+    
+    // Step 3: Poll for completion and get word timings
+    const words = await pollTranscription(transcriptId, apiKey);
+    
+    return words;
+}
+
+/**
+ * Uploads audio data to AssemblyAI.
+ * @param {string} audioBase64 - Base64-encoded audio data
+ * @param {string} apiKey - AssemblyAI API key
+ * @returns {Promise<string>} Upload URL for the audio
+ */
+function uploadToAssemblyAI(audioBase64: string, apiKey: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const audioBuffer = Buffer.from(audioBase64, 'base64');
+        
+        const req = https.request({
+            hostname: 'api.assemblyai.com',
+            path: '/v2/upload',
+            method: 'POST',
+            headers: {
+                'Authorization': apiKey,
+                'Content-Type': 'application/octet-stream',
+                'Content-Length': audioBuffer.length
+            }
+        }, res => {
+            let body = '';
+            res.on('data', c => body += c);
+            res.on('end', () => {
+                if (res.statusCode !== 200) {
+                    reject(`AssemblyAI upload error: ${res.statusCode} - ${body}`);
+                    return;
+                }
+                try {
+                    const json = JSON.parse(body);
+                    if (json.upload_url) resolve(json.upload_url);
+                    else reject('AssemblyAI upload returned no URL');
+                } catch { reject('Failed to parse AssemblyAI upload response'); }
+            });
+        });
+        
+        req.on('error', e => reject(`AssemblyAI upload failed: ${e.message}`));
+        req.write(audioBuffer);
+        req.end();
+    });
+}
+
+/**
+ * Creates a transcription request with AssemblyAI.
+ * @param {string} audioUrl - URL of the uploaded audio
+ * @param {string} apiKey - AssemblyAI API key
+ * @returns {Promise<string>} Transcript ID for polling
+ */
+function createTranscription(audioUrl: string, apiKey: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const data = JSON.stringify({ audio_url: audioUrl });
+        
+        const req = https.request({
+            hostname: 'api.assemblyai.com',
+            path: '/v2/transcript',
+            method: 'POST',
+            headers: {
+                'Authorization': apiKey,
+                'Content-Type': 'application/json'
+            }
+        }, res => {
+            let body = '';
+            res.on('data', c => body += c);
+            res.on('end', () => {
+                if (res.statusCode !== 200) {
+                    reject(`AssemblyAI transcription error: ${res.statusCode} - ${body}`);
+                    return;
+                }
+                try {
+                    const json = JSON.parse(body);
+                    if (json.id) resolve(json.id);
+                    else reject('AssemblyAI returned no transcript ID');
+                } catch { reject('Failed to parse AssemblyAI response'); }
+            });
+        });
+        
+        req.on('error', e => reject(`AssemblyAI request failed: ${e.message}`));
+        req.write(data);
+        req.end();
+    });
+}
+
+/**
+ * Polls AssemblyAI for transcription completion and returns word timings.
+ * @param {string} transcriptId - The transcript ID to poll
+ * @param {string} apiKey - AssemblyAI API key
+ * @returns {Promise<WordTiming[]>} Array of word timings
+ */
+async function pollTranscription(transcriptId: string, apiKey: string): Promise<WordTiming[]> {
+    const maxAttempts = 60; // Max 60 attempts (about 2 minutes)
+    
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const result = await getTranscriptionStatus(transcriptId, apiKey);
+        
+        if (result.status === 'completed') {
+            // Convert milliseconds to seconds for word timings
+            return (result.words || []).map((w: { text: string; start: number; end: number }) => ({
+                word: w.text,
+                start: w.start / 1000,
+                end: w.end / 1000
+            }));
+        }
+        
+        if (result.status === 'error') {
+            throw new Error(`AssemblyAI transcription failed: ${result.error}`);
+        }
+        
+        // Wait 2 seconds before next poll
+        await sleep(2000);
+    }
+    
+    throw new Error('AssemblyAI transcription timed out');
+}
+
+/**
+ * Gets the current status of a transcription.
+ * @param {string} transcriptId - The transcript ID
+ * @param {string} apiKey - AssemblyAI API key
+ * @returns {Promise<{status: string, words?: any[], error?: string}>} Transcription status and data
+ */
+function getTranscriptionStatus(transcriptId: string, apiKey: string): Promise<{ status: string; words?: { text: string; start: number; end: number }[]; error?: string }> {
+    return new Promise((resolve, reject) => {
+        const req = https.request({
+            hostname: 'api.assemblyai.com',
+            path: `/v2/transcript/${transcriptId}`,
+            method: 'GET',
+            headers: {
+                'Authorization': apiKey
+            }
+        }, res => {
+            let body = '';
+            res.on('data', c => body += c);
+            res.on('end', () => {
+                if (res.statusCode !== 200) {
+                    reject(`AssemblyAI status error: ${res.statusCode}`);
+                    return;
+                }
+                try {
+                    const json = JSON.parse(body);
+                    resolve({
+                        status: json.status,
+                        words: json.words,
+                        error: json.error
+                    });
+                } catch { reject('Failed to parse AssemblyAI status response'); }
+            });
+        });
+        
+        req.on('error', e => reject(`AssemblyAI status request failed: ${e.message}`));
         req.end();
     });
 }

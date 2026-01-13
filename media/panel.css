@@ -35,7 +35,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 16px 20px;
   background: linear-gradient(180deg, rgba(15, 46, 36, 0.95) 0%, transparent 100%);
   position: relative;
   z-index: 10;
@@ -59,6 +59,67 @@ body {
   border-radius: 50%;
   box-shadow: 0 0 12px rgba(77, 199, 145, 0.6);
   animation: pulse 2s ease-in-out infinite;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Status Indicators in Header */
+.status-indicators {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 10px;
+  background: rgba(10, 31, 24, 0.6);
+  border-radius: 10px;
+  border: 1px solid rgba(77, 199, 145, 0.15);
+}
+
+.status-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.status-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: rgba(255, 255, 255, 0.25);
+  transition: fill 0.3s ease;
+}
+
+.status-icon.active {
+  background: rgba(77, 199, 145, 0.2);
+}
+
+.status-icon.active svg {
+  fill: #4dc791;
+}
+
+.status-icon.inactive {
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.status-icon.inactive svg {
+  fill: rgba(255, 107, 107, 0.5);
+}
+
+.status-icon:hover {
+  transform: scale(1.1);
+  background: rgba(77, 199, 145, 0.15);
+}
+
+.status-icon:hover svg {
+  fill: rgba(77, 199, 145, 0.8);
 }
 
 @keyframes pulse {
@@ -255,6 +316,14 @@ body {
   justify-content: center;
 }
 
+/* Bottom Controls */
+.bottom-controls {
+  padding: 16px 24px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .speed-btn {
   padding: 8px 24px;
   border: 1px solid rgba(77, 199, 145, 0.2);
@@ -266,12 +335,59 @@ body {
   cursor: pointer;
   transition: all 0.25s ease;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .speed-btn:hover { 
   background: rgba(77, 199, 145, 0.15);
   border-color: rgba(77, 199, 145, 0.4);
   transform: translateY(-1px);
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  gap: 8px;
+  background: rgba(10, 31, 24, 0.6);
+  border-radius: 12px;
+  padding: 4px;
+  border: 1px solid rgba(77, 199, 145, 0.15);
+}
+
+.view-btn {
+  width: 40px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.view-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: rgba(77, 199, 145, 0.5);
+  transition: fill 0.25s ease;
+}
+
+.view-btn:hover {
+  background: rgba(77, 199, 145, 0.1);
+}
+
+.view-btn:hover svg {
+  fill: rgba(77, 199, 145, 0.8);
+}
+
+.view-btn.active {
+  background: rgba(77, 199, 145, 0.2);
+}
+
+.view-btn.active svg {
+  fill: #4dc791;
 }
 
 /* Divider */
@@ -327,6 +443,18 @@ body {
   padding: 8px 0;
 }
 
+.beta-label {
+  display: inline-block;
+  background: rgba(77, 199, 145, 0.2);
+  color: #4dc791;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
 .sentence {
   padding: 16px 20px;
   margin: 8px 0;
@@ -363,6 +491,45 @@ body {
   height: 60%;
   background: linear-gradient(180deg, transparent, #4dc791, transparent);
   border-radius: 2px;
+}
+
+/* Captions View */
+.captions-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px 20px;
+}
+
+.caption-text {
+  font-size: 24px;
+  line-height: 1.6;
+  color: #ffffff;
+  text-align: center;
+  max-width: 100%;
+  transition: opacity 0.3s ease;
+}
+
+.caption-text.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0.5; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Full Text View */
+.fulltext-container {
+  padding: 8px 0;
+}
+
+.fulltext {
+  font-size: 16px;
+  line-height: 1.85;
+  color: rgba(224, 242, 236, 0.85);
+  white-space: pre-wrap;
 }
 
 /* Scrollbar */

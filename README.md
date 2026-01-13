@@ -2,7 +2,7 @@
 
 <img src="assets/Vocalize_MD_Logo.png" alt="Vocalize MD Logo" width="200">
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/Geguchh024/VocalizeMD)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/Geguchh024/VocalizeMD)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.103.0+-007ACC.svg)](https://code.visualstudio.com/)
 
@@ -20,8 +20,11 @@ The extension intelligently processes Markdown syntax using Gemini AI to create 
 - 🤖 **Intelligent Markdown Processing**: Uses Gemini AI to convert Markdown to natural, readable text
 - 🎨 **Multiple Voice Options**: Choose from 6 different voice models (male and female)
 - ⚡ **One-Click Playback**: Simple toolbar button to read your Markdown files aloud
-- 📝 **Word-Level Highlighting**: Visual feedback showing which word is currently being spoken
-- � **Automatic Chunking**: Handles long documents by intelligently splitting text
+- 📝 **Synced Text Display**: Visual feedback showing which sentence is currently being spoken
+- 🎯 **View Modes**: Toggle between synced captions view and full text view
+- 🔊 **AssemblyAI Integration** (Optional): Enable accurate word timestamps for better sync
+- 📊 **API Status Indicators**: Visual icons showing which services are configured
+- 📄 **Automatic Chunking**: Handles long documents by intelligently splitting text
 - 🎯 **Markdown-Specific**: Automatically activates when working with Markdown files
 
 ## Installation
@@ -44,9 +47,9 @@ The extension intelligently processes Markdown syntax using Gemini AI to create 
 
 ## API Setup
 
-This extension requires API keys from two services: Deepgram (for text-to-speech) and OpenRouter (for Gemini AI text processing).
+This extension requires API keys from two services: Deepgram (for text-to-speech) and OpenRouter (for Gemini AI text processing). Optionally, you can also configure AssemblyAI for more accurate word timestamps.
 
-### Deepgram API Setup
+### Deepgram API Setup (Required)
 
 Deepgram provides the text-to-speech conversion.
 
@@ -68,7 +71,7 @@ Deepgram provides the text-to-speech conversion.
 
 **Official Documentation**: [Deepgram API Docs](https://developers.deepgram.com/docs)
 
-### OpenRouter API Setup
+### OpenRouter API Setup (Required)
 
 OpenRouter provides access to Gemini AI for intelligent Markdown processing.
 
@@ -93,6 +96,26 @@ OpenRouter provides access to Gemini AI for intelligent Markdown processing.
    - Paste your API key into the "OpenRouter API Key" field
 
 **Official Documentation**: [OpenRouter API Docs](https://openrouter.ai/docs)
+
+### AssemblyAI API Setup (Optional)
+
+AssemblyAI provides accurate word-level timestamps for better audio-text synchronization. This is optional but recommended for the best experience.
+
+1. **Create an AssemblyAI Account**
+   - Visit [https://www.assemblyai.com/](https://www.assemblyai.com/)
+   - Sign up for a free account (includes $50 in free credits)
+
+2. **Get Your API Key**
+   - Log in to your AssemblyAI dashboard
+   - Copy your API key from the dashboard
+
+3. **Enable in VS Code Settings**
+   - Open VS Code Settings (File > Preferences > Settings or Ctrl+,)
+   - Search for "Vocalize MD"
+   - Check "Use AssemblyAI" to enable the feature
+   - Paste your API key into the "AssemblyAI API Key" field
+
+**Official Documentation**: [AssemblyAI Docs](https://www.assemblyai.com/docs)
 
 ## Usage
 
@@ -121,6 +144,8 @@ _Note: Screenshots coming soon!_
 |---------|-------------|---------|---------|
 | `vocalizeMd.deepgramApiKey` | Your Deepgram API key for text-to-speech | `""` | Any valid API key |
 | `vocalizeMd.openrouterApiKey` | Your OpenRouter API key for Gemini text processing | `""` | Any valid API key |
+| `vocalizeMd.useAssemblyAI` | Enable AssemblyAI for accurate word timestamps | `false` | `true` / `false` |
+| `vocalizeMd.assemblyaiApiKey` | Your AssemblyAI API key (free tier: $50 credits) | `""` | Any valid API key |
 | `vocalizeMd.voice` | Voice model to use for speech synthesis | `aura-asteria-en` | `aura-asteria-en` (female)<br>`aura-luna-en` (female)<br>`aura-stella-en` (female)<br>`aura-orion-en` (male)<br>`aura-arcas-en` (male)<br>`aura-perseus-en` (male) |
 
 To access these settings:

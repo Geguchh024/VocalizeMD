@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-01-13
+
+### Added
+- **AssemblyAI Integration** (Optional): Enable accurate word-level timestamps for better audio sync
+  - New setting `vocalizeMd.useAssemblyAI` to opt-in to AssemblyAI transcription
+  - New setting `vocalizeMd.assemblyaiApiKey` for AssemblyAI API key (free tier: $50 credits)
+- **View Mode Toggle**: Switch between synced text and full text views
+  - Captions view: Shows one sentence at a time (like subtitles) when AssemblyAI is enabled
+  - Synced view (beta): Highlights sentences as they're spoken (default without AssemblyAI)
+  - Full text view: Shows all text without syncing
+- **API Status Indicators**: Visual icons in the header showing which APIs are configured
+  - Music note icon: Deepgram TTS status
+  - Code brackets icon: OpenRouter/Gemini status
+  - Microphone icon: AssemblyAI status
+  - Green = active, red = not configured, with detailed tooltips on hover
+
+### Changed
+- Improved sync accuracy at higher playback speeds (1.5x, 2x)
+- Reorganized settings: AssemblyAI checkbox and API key are now grouped together
+- Better spacing between player controls
+
+### Fixed
+- Audio sync drift at 2x playback speed
+
 ## [0.2.0] - 2026-01-13
 
 ### Added
@@ -46,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive documentation (README, CONTRIBUTING)
 - Project icon and branding
 
-[unreleased]:https://github.com/Geguchh024/VocalizeMD/compare/v0.2.0...HEAD
+[unreleased]:https://github.com/Geguchh024/VocalizeMD/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Geguchh024/VocalizeMD/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Geguchh024/VocalizeMD/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Geguchh024/VocalizeMD/releases/tag/v0.1.0

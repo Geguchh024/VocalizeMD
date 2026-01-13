@@ -2,7 +2,7 @@
   "name": "vocalize-md",
   "displayName": "Vocalize MD",
   "description": "Text-to-Speech for Markdown files",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "Geguchh024",
   "icon": "assets/Vocalize_MD_Logo.png",
   "license": "MIT",
@@ -20,8 +20,12 @@
     "tts",
     "accessibility",
     "deepgram",
+    "assemblyai",
     "audio",
-    "read-aloud"
+    "read-aloud",
+    "speech",
+    "voice",
+    "captions"
   ],
   "galleryBanner": {
     "color": "#0f2e24",
@@ -62,6 +66,16 @@
           "type": "string",
           "default": "",
           "description": "OpenRouter API key for Gemini text processing"
+        },
+        "vocalizeMd.useAssemblyAI": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable AssemblyAI for more accurate word timestamps (requires API key)"
+        },
+        "vocalizeMd.assemblyaiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "AssemblyAI API key for accurate word timestamps (free tier: $50 credits)"
         },
         "vocalizeMd.voice": {
           "type": "string",
