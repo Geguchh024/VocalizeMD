@@ -1,0 +1,92 @@
+{
+  "name": "vocalize-md",
+  "displayName": "Vocalize MD",
+  "description": "Text-to-Speech for Markdown files",
+  "version": "0.1.0",
+  "publisher": "YOUR_PUBLISHER_ID",
+  "icon": "assets/Vocalize_MD_Logo.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/USERNAME/vocalize-md"
+  },
+  "homepage": "https://github.com/USERNAME/vocalize-md#readme",
+  "bugs": {
+    "url": "https://github.com/USERNAME/vocalize-md/issues"
+  },
+  "keywords": [
+    "markdown",
+    "text-to-speech",
+    "tts",
+    "accessibility",
+    "deepgram",
+    "audio",
+    "read-aloud"
+  ],
+  "galleryBanner": {
+    "color": "#0d1117",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onLanguage:markdown"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vocalizeMd.speak",
+        "title": "Vocalize MD: Read Aloud",
+        "icon": "$(unmute)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "vocalizeMd.speak",
+          "when": "resourceLangId == markdown",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Vocalize MD",
+      "properties": {
+        "vocalizeMd.deepgramApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Deepgram API key for text-to-speech"
+        },
+        "vocalizeMd.openrouterApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenRouter API key for Gemini text processing"
+        },
+        "vocalizeMd.voice": {
+          "type": "string",
+          "default": "aura-asteria-en",
+          "enum": [
+            "aura-asteria-en",
+            "aura-luna-en",
+            "aura-stella-en",
+            "aura-orion-en",
+            "aura-arcas-en",
+            "aura-perseus-en"
+          ],
+          "description": "Voice model"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "22.x",
+    "@types/vscode": "^1.103.0",
+    "typescript": "^5.9.3"
+  }
+}

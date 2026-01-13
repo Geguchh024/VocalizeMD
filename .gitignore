@@ -1,0 +1,42 @@
+# Node modules
+node_modules/
+
+# Build output
+out/
+dist/
+*.js
+*.js.map
+!media/**/*.js
+
+# VS Code test files
+.vscode-test/
+.vscode-test-web/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# VSIX packages
+*.vsix
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+.cache/

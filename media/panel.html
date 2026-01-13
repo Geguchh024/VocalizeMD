@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; media-src data:;">
+  <style>{{CSS}}</style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🔊 Vocalize MD</h1>
+      <button class="icon-btn" id="settingsBtn" title="Settings">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </button>
+    </header>
+
+    <!-- Player Controls -->
+    <div class="player">
+      <div class="controls">
+        <button class="ctrl-btn" id="rewindBtn" title="Rewind 10s">
+          <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/><text x="12" y="15" font-size="6" text-anchor="middle" fill="currentColor">10</text></svg>
+        </button>
+        <button class="play-btn" id="playBtn" title="Play">
+          <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="pause-icon hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button class="ctrl-btn" id="forwardBtn" title="Forward 10s">
+          <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/><text x="12" y="15" font-size="6" text-anchor="middle" fill="currentColor">10</text></svg>
+        </button>
+      </div>
+      
+      <div class="progress-wrap">
+        <input type="range" class="progress" id="progress" min="0" max="100" value="0" step="0.1">
+        <div class="time">
+          <span id="current">0:00</span>
+          <span id="duration">0:00</span>
+        </div>
+      </div>
+
+      <div class="speed-control">
+        <button class="speed-btn" id="speedBtn">1×</button>
+      </div>
+    </div>
+
+    <!-- Text Display -->
+    <div class="text-area" id="textArea">
+      <div class="placeholder">
+        <p>Click the 🔊 speaker icon on any markdown file to start</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const vscode = acquireVsCodeApi();
+    
+    let audio = null;
+    let sentenceElements = [];
+    let sentenceTimings = []; // {start, end} for each sentence
+    let speed = 1;
+    const speeds = [0.75, 1, 1.25, 1.5, 2];
+    let speedIndex = 1;
+    let animationId = null;
+    let currentSentenceIdx = -1;
+
+    const playBtn = document.getElementById('playBtn');
+    const rewindBtn = document.getElementById('rewindBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
+    const speedBtn = document.getElementById('speedBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const progress = document.getElementById('progress');
+    const currentEl = document.getElementById('current');
+    const durationEl = document.getElementById('duration');
+    const textArea = document.getElementById('textArea');
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + sec.toString().padStart(2, '0');
+    }
+
+    function highlightCurrentSentence() {
+      if (!audio || !sentenceTimings.length) return;
+      
+      const currentTime = audio.currentTime;
+      
+      // Find sentence at current time
+      let activeIdx = -1;
+      for (let i = 0; i < sentenceTimings.length; i++) {
+        if (currentTime >= sentenceTimings[i].start && currentTime < sentenceTimings[i].end) {
+          activeIdx = i;
+          break;
+        }
+      }
+      
+      // Only update if sentence changed
+      if (activeIdx !== currentSentenceIdx && activeIdx >= 0) {
+        currentSentenceIdx = activeIdx;
+        
+        sentenceElements.forEach((el, i) => {
+          el.classList.toggle('active', i === activeIdx);
+        });
+        
+        // Smooth scroll to sentence
+        if (sentenceElements[activeIdx]) {
+          sentenceElements[activeIdx].scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center'
+          });
+        }
+      }
+    }
+
+    function updateProgress() {
+      if (!audio) return;
+      const pct = (audio.currentTime / audio.duration) * 100 || 0;
+      progress.value = pct;
+      progress.style.background = `linear-gradient(to right, #4fc3f7 ${pct}%, #333 ${pct}%)`;
+      currentEl.textContent = formatTime(audio.currentTime);
+      
+      highlightCurrentSentence();
+      
+      if (!audio.paused) {
+        animationId = requestAnimationFrame(updateProgress);
+      }
+    }
+
+    function setPlaying(playing) {
+      playBtn.querySelector('.play-icon').classList.toggle('hidden', playing);
+      playBtn.querySelector('.pause-icon').classList.toggle('hidden', !playing);
+      
+      if (playing) {
+        animationId = requestAnimationFrame(updateProgress);
+      } else if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    }
+
+    playBtn.onclick = () => {
+      if (!audio) return;
+      if (audio.paused) {
+        audio.play();
+        setPlaying(true);
+      } else {
+        audio.pause();
+        setPlaying(false);
+      }
+    };
+
+    rewindBtn.onclick = () => { if (audio) audio.currentTime = Math.max(0, audio.currentTime - 10); };
+    forwardBtn.onclick = () => { if (audio) audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); };
+
+    speedBtn.onclick = () => {
+      speedIndex = (speedIndex + 1) % speeds.length;
+      speed = speeds[speedIndex];
+      speedBtn.textContent = speed + '×';
+      if (audio) audio.playbackRate = speed;
+    };
+
+    settingsBtn.onclick = () => vscode.postMessage({ command: 'openSettings' });
+
+    progress.oninput = () => {
+      if (audio) {
+        audio.currentTime = (progress.value / 100) * audio.duration;
+        currentSentenceIdx = -1; // Reset to force update
+        highlightCurrentSentence();
+      }
+    };
+
+    // Split text into sentences
+    function splitIntoSentences(text) {
+      return text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+    }
+
+    // Build sentence timings from word timings
+    function buildSentenceTimings(text, wordTimings) {
+      const sentences = splitIntoSentences(text);
+      const timings = [];
+      let wordIdx = 0;
+      
+      for (const sentence of sentences) {
+        const sentenceWords = sentence.split(/\s+/).filter(w => w);
+        const wordCount = sentenceWords.length;
+        
+        if (wordIdx < wordTimings.length) {
+          const start = wordTimings[wordIdx].start;
+          const endIdx = Math.min(wordIdx + wordCount - 1, wordTimings.length - 1);
+          const end = wordTimings[endIdx].end;
+          timings.push({ start, end, text: sentence });
+          wordIdx += wordCount;
+        }
+      }
+      
+      return timings;
+    }
+
+    window.addEventListener('message', e => {
+      const msg = e.data;
+      
+      if (msg.type === 'status') {
+        textArea.innerHTML = `<div class="loading"><div class="spinner"></div><p>${msg.message}</p></div>`;
+        if (audio) { audio.pause(); audio = null; }
+        if (animationId) cancelAnimationFrame(animationId);
+        setPlaying(false);
+        currentSentenceIdx = -1;
+      }
+      
+      if (msg.type === 'error') {
+        textArea.innerHTML = `<div class="error"><p>⚠️ ${msg.message}</p></div>`;
+      }
+      
+      if (msg.type === 'ready') {
+        const wordTimings = msg.words || [];
+        currentSentenceIdx = -1;
+        
+        // Build sentence timings from word timings
+        if (wordTimings.length) {
+          sentenceTimings = buildSentenceTimings(msg.text, wordTimings);
+        } else {
+          // Fallback: estimate timings based on text length
+          const sentences = splitIntoSentences(msg.text);
+          const totalChars = sentences.reduce((sum, s) => sum + s.length, 0);
+          let currentTime = 0;
+          sentenceTimings = sentences.map(s => {
+            const duration = (s.length / totalChars) * (msg.estimatedDuration || 60);
+            const timing = { start: currentTime, end: currentTime + duration, text: s };
+            currentTime += duration;
+            return timing;
+          });
+        }
+        
+        // Render sentences
+        textArea.innerHTML = '<div class="synced-text">' + 
+          sentenceTimings.map(s => `<p class="sentence">${s.text}</p>`).join('') + 
+          '</div>';
+        sentenceElements = Array.from(textArea.querySelectorAll('.sentence'));
+        
+        // Setup audio
+        audio = new Audio('data:audio/mpeg;base64,' + msg.audio);
+        audio.playbackRate = speed;
+        
+        audio.onloadedmetadata = () => {
+          durationEl.textContent = formatTime(audio.duration);
+          
+          // Update fallback timings with actual duration
+          if (!wordTimings.length && audio.duration) {
+            const sentences = splitIntoSentences(msg.text);
+            const totalChars = sentences.reduce((sum, s) => sum + s.length, 0);
+            let currentTime = 0;
+            sentenceTimings = sentences.map(s => {
+              const duration = (s.length / totalChars) * audio.duration;
+              const timing = { start: currentTime, end: currentTime + duration, text: s };
+              currentTime += duration;
+              return timing;
+            });
+          }
+        };
+        
+        audio.onended = () => {
+          setPlaying(false);
+          sentenceElements.forEach(s => s.classList.remove('active'));
+          currentSentenceIdx = -1;
+        };
+        
+        // Auto-play
+        audio.play().then(() => setPlaying(true)).catch(() => {});
+      }
+    });
+  </script>
+</body>
+</html>
