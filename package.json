@@ -2,7 +2,7 @@
   "name": "vocalize-md",
   "displayName": "Vocalize MD",
   "description": "Text-to-Speech for Markdown files",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "Geguchh024",
   "icon": "assets/Vocalize_MD_Logo.png",
   "license": "MIT",
@@ -24,13 +24,13 @@
     "read-aloud"
   ],
   "galleryBanner": {
-    "color": "#0d1117",
+    "color": "#0f2e24",
     "theme": "dark"
   },
   "engines": {
     "vscode": "^1.103.0"
   },
-  "categories": ["Other", "Accessibility"],
+  "categories": ["Other"],
   "activationEvents": ["onLanguage:markdown"],
   "main": "./out/extension.js",
   "contributes": {

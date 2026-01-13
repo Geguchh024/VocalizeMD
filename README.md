@@ -1,6 +1,6 @@
 # Vocalize MD
 
-![Vocalize MD Logo](assets/Vocalize_MD_Logo.png)
+<img src="assets/Vocalize_MD_Logo.png" alt="Vocalize MD Logo" width="200">
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/Geguchh024/VocalizeMD)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -21,7 +21,7 @@ The extension intelligently processes Markdown syntax using Gemini AI to create 
 - 🎨 **Multiple Voice Options**: Choose from 6 different voice models (male and female)
 - ⚡ **One-Click Playback**: Simple toolbar button to read your Markdown files aloud
 - 📝 **Word-Level Highlighting**: Visual feedback showing which word is currently being spoken
-- 🔄 **Automatic Chunking**: Handles long documents by intelligently splitting text
+- � **Automatic Chunking**: Handles long documents by intelligently splitting text
 - 🎯 **Markdown-Specific**: Automatically activates when working with Markdown files
 
 ## Installation
@@ -35,7 +35,7 @@ The extension intelligently processes Markdown syntax using Gemini AI to create 
 
 ### Manual Installation
 
-1. Download the latest `.vsix` file from the [releases page](https://github.com/Geguchh024/VocalizeMD)
+1. Download the latest `.vsix` file from the [releases page](https://github.com/Geguchh024/VocalizeMD/releases)
 2. Open VS Code
 3. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
 4. Click the "..." menu at the top of the Extensions panel
@@ -107,6 +107,7 @@ OpenRouter provides access to Gemini AI for intelligent Markdown processing.
    - The extension will process your Markdown and begin reading it aloud
    - Words are highlighted as they're spoken for easy following
    - A webview panel opens showing the processed text and playback controls
+   - If the highlighting gets out of sync, click on any line to jump to that position
 
 4. **Control Playback**
    - Use the audio controls in the webview panel to pause, resume, or adjust volume
